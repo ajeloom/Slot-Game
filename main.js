@@ -9,6 +9,18 @@ const Symbol = {
     seven: 5,
 }
 
+var symbolImages = [
+    "cherry.png", 
+    "watermelon.png", 
+    "diamond.png", 
+    "star.png",
+    "bar.png",
+    "7.png"
+];
+
+var num1, num2, num3;
+var slotArray = [0, 0, 0];
+
 function startGame()
 {
     if (coins >= 3) {
@@ -16,28 +28,89 @@ function startGame()
 
         updateCoinCount();
 
-        document.getElementById("paragraph").innerHTML = "";
-        
-        var num1 = getRandomInt();
-        var num2 = getRandomInt();
-        var num3 = getRandomInt();
+        document.getElementById("startButton").hidden = true;
+        document.getElementById("resetButton").hidden = true;
 
-        // const numbers = [num1, num2, num3]
+        num1 = getRandomInt();
+        num2 = getRandomInt();
+        num3 = getRandomInt();
 
-        // for (var i = 0; i < 3; i++) {
-        //     document.getElementById("paragraph").innerHTML += numbers[i] + " ";
-        // }
+        // document.getElementById("paragraph").innerHTML += " num1: " + num1;
+        // document.getElementById("paragraph").innerHTML += " num2: " + num2;
+        // document.getElementById("paragraph").innerHTML += " num3: " + num3;
 
-        updateSlotPicture("img1", num1);
-        updateSlotPicture("img2", num2);
-        updateSlotPicture("img3", num3);
-
-        findMatchingPayline(num1, num2, num3);
+        scrollSlots();
     }
     else {
         document.getElementById("paragraph").innerHTML = "Game Over - Not enough coins...";
     }
+}
 
+var i = 0;
+var step = 0;
+var maxsteps = 30;
+
+function scrollSlots()
+{
+    if (step < maxsteps) {
+        document.getElementById("img1").src = symbolImages[i];
+        document.getElementById("img2").src = symbolImages[i];
+        document.getElementById("img3").src = symbolImages[i];
+
+        slotArray[0] = i;
+        slotArray[1] = i;
+        slotArray[2] = i;
+        
+        step++;
+    }
+    else {
+        if (slotArray[0] != num1) {
+            document.getElementById("img1").src = symbolImages[i];
+            slotArray[0] = i;
+        }
+
+        if (slotArray[1] != num2) {
+            document.getElementById("img2").src = symbolImages[i];
+            slotArray[1] = i;
+        }
+
+        if (slotArray[2] != num3) {
+            document.getElementById("img3").src = symbolImages[i];
+            slotArray[2] = i;
+        }
+    }
+
+    if (i < symbolImages.length - 1) {
+        i++;
+    }
+    else {
+        i = 0;
+    }    
+
+    var myVar = setTimeout("scrollSlots()", 100);
+
+    if (step == maxsteps) {
+        if ((slotArray[0] == num1)
+                && (slotArray[1] == num2)
+                && (slotArray[2] == num3)) {
+            clearTimeout(myVar);
+            step = 0;
+            stopSlot();
+        }
+    }
+}
+
+function stopSlot()
+{
+    document.getElementById("paragraph").innerHTML = "";
+
+    findMatchingPayline(num1, num2, num3);
+
+    if (coins >= 3) {
+        document.getElementById("startButton").hidden = false;
+    }
+
+    document.getElementById("resetButton").hidden = false;
 }
 
 function resetGame()
@@ -55,30 +128,6 @@ function updateCoinCount()
 function getRandomInt()
 {
     return Math.floor(Math.random() * 6);
-}
-
-function updateSlotPicture(imageID, number)
-{
-    switch (number) {
-        case Symbol.cherry:
-            document.getElementById(imageID).src = "cherry.png";
-            break;
-        case Symbol.watermelon:
-            document.getElementById(imageID).src = "watermelon.png";
-            break;
-        case Symbol.diamond:
-            document.getElementById(imageID).src = "diamond.png";
-            break;
-        case Symbol.star:
-            document.getElementById(imageID).src = "star.png";
-            break;
-        case Symbol.bar:
-            document.getElementById(imageID).src = "bar.png";
-            break;
-        case Symbol.seven:
-            document.getElementById(imageID).src = "7.png";
-            break;
-    }
 }
 
 function findMatchingPayline(num1, num2, num3)
@@ -111,5 +160,6 @@ function findMatchingPayline(num1, num2, num3)
         coins += gainedCoins;
         document.getElementById("paragraph").innerHTML += " Jackpot! ";
         document.getElementById("paragraph").innerHTML += "Gained " + gainedCoins + " coins!";
+        updateCoinCount();
     }
 }
